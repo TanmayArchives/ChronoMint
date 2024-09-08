@@ -1,36 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Liquidating-an-NFT-to-any-token
 
-## Getting Started
+Problem to Solve
 
-First, run the development server:
+Solana-based NFTs are primarily denominated in SOL. However, many traders and collectors might prefer to interact with USDC and USDT. Allowing NFTs to be liquidated in any token, particularly stablecoins like USDC, can significantly simplify matters.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Possible Solution
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Introduce an NFT liquidation platform that enables users to instantly exchange any SOL-based NFT for any SPL token at the currently available best price.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This platform will leverage two key services:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Marketplace aggregators like Tensor, which facilitate the sale of NFTs at the optimal prices (in SOL).
+Swap aggregators like Jupiter, which convert SOL to any token at the best available prices. Both Jupiter’s pricing and swap APIs will be utilized in this process.
+The user workflow is as follows: A user clicks on the 'swap' option, connects their SOL wallet, selects the NFT they wish to swap, and designates the desired token for exchange/receipt. Subsequently, they await the aggregator to identify the most advantageous route, choose the option that best suits their preferences, and then execute the swap.
 
-## Learn More
+Resources
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Jupiter APIs - https://station.jup.ag/docs/apis
+Tensor Docs - https://docs.tensor.trade/
