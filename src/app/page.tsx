@@ -5,6 +5,8 @@ import NFTSelector from '@/components/NFTSelector'
 import TokenSelector from '@/components/TokenSelector'
 import SwapButton from '@/components/SwapButton'
 import Notification from '@/components/Notification'
+import NFTMinter from '@/components/NFTMinter'
+import { Tab } from '@headlessui/react'
 
 interface NFT {
   mint: string;
@@ -73,41 +75,80 @@ export default function Home() {
           )}
         </AnimatePresence>
         
-        <div className="grid gap-8 md:grid-cols-2">
-          <motion.div
-            initial={{ x: -100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white text-black p-6 rounded-lg shadow-lg transform rotate-2"
-          >
-            <NFTSelector onSelect={handleNFTSelect} />
-          </motion.div>
-          
-          <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white text-black p-6 rounded-lg shadow-lg transform -rotate-2"
-          >
-            <TokenSelector onSelect={setSelectedToken} />
-          </motion.div>
-        </div>
-        
-        {selectedNFT && (
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-8"
-          >
-            <SwapButton 
-              selectedNFT={selectedNFT} 
-              selectedToken={selectedToken} 
-              onSuccess={(message) => showNotification(message, 'success')}
-              onError={(message) => showNotification(message, 'error')}
-            />
-          </motion.div>
-        )}
+        <Tab.Group>
+          <Tab.List className="flex p-1 space-x-1 bg-white/20 rounded-xl mb-8">
+            <Tab
+              className={({ selected }) =>
+                `w-full py-2.5 text-sm font-medium leading-5 text-white rounded-lg
+                 focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60
+                 ${selected ? 'bg-white text-black shadow' : 'text-white hover:bg-white/[0.12] hover:text-white'}`
+              }
+            >
+              Swap NFT
+            </Tab>
+            <Tab
+              className={({ selected }) =>
+                `w-full py-2.5 text-sm font-medium leading-5 text-white rounded-lg
+                 focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60
+                 ${selected ? 'bg-white text-black shadow' : 'text-white hover:bg-white/[0.12] hover:text-white'}`
+              }
+            >
+              Mint NFT
+            </Tab>
+          </Tab.List>
+          <Tab.Panels>
+            <Tab.Panel>
+              <div className="grid gap-8 md:grid-cols-2">
+                <motion.div
+                  initial={{ x: -100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-white text-black p-6 rounded-lg shadow-lg transform rotate-2"
+                >
+                  <NFTSelector onSelect={handleNFTSelect} />
+                </motion.div>
+                
+                <motion.div
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-white text-black p-6 rounded-lg shadow-lg transform -rotate-2"
+                >
+                  <TokenSelector onSelect={setSelectedToken} />
+                </motion.div>
+              </div>
+              
+              {selectedNFT && (
+                <motion.div
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="mt-8"
+                >
+                  <SwapButton 
+                    selectedNFT={selectedNFT} 
+                    selectedToken={selectedToken} 
+                    onSuccess={(message) => showNotification(message, 'success')}
+                    onError={(message) => showNotification(message, 'error')}
+                  />
+                </motion.div>
+              )}
+            </Tab.Panel>
+            <Tab.Panel>
+              <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white text-black p-6 rounded-lg shadow-lg"
+              >
+                <NFTMinter 
+                  onSuccess={(message) => showNotification(message, 'success')}
+                  onError={(message) => showNotification(message, 'error')}
+                />
+              </motion.div>
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
       </div>
     </motion.main>
   )

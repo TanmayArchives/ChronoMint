@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useWallet, useConnection } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,6 +10,7 @@ import { trackEvent } from '@/lib/analytics'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { clusterApiUrl, Connection } from '@solana/web3.js'
 import { ChevronDown } from "lucide-react"
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 type NFT = {
   mint: string
@@ -29,7 +30,21 @@ export default function NFTSelector({ onSelect }: NFTSelectorProps) {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const { publicKey, connected, disconnect } = useWallet()
-  const [network, setNetwork] = useState(WalletAdapterNetwork.Mainnet)
+  const { connection: defaultConnection } = useConnection()
+  const [connection, setConnection] = useState(defaultConnection)
+  const [network, setNetwork] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('selectedNetwork') as WalletAdapterNetwork || WalletAdapterNetwork.Devnet
+    }
+    return WalletAdapterNetwork.Devnet
+  })
+  const [balance, setBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedNetwork', network)
+    }
+  }, [network])
 
   const endpoint = useMemo(() => {
     if (network === WalletAdapterNetwork.Mainnet) {
@@ -43,8 +58,6 @@ export default function NFTSelector({ onSelect }: NFTSelectorProps) {
     }
     return clusterApiUrl(network)
   }, [network])
-
-  const connection = useMemo(() => new Connection(endpoint), [endpoint])
 
   useEffect(() => {
     console.log('Current network:', network)
@@ -67,6 +80,24 @@ export default function NFTSelector({ onSelect }: NFTSelectorProps) {
     }
     checkConnection()
   }, [connection])
+
+  useEffect(() => {
+    async function fetchBalance() {
+      if (publicKey && connection) {
+        try {
+          const balance = await connection.getBalance(publicKey);
+          setBalance(balance / LAMPORTS_PER_SOL);
+        } catch (error) {
+          console.error('Error fetching balance:', error);
+          setBalance(null);
+        }
+      } else {
+        setBalance(null);
+      }
+    }
+
+    fetchBalance();
+  }, [publicKey, connection]);
 
   const fetchNFTs = useCallback(async () => {
     if (!publicKey) return
@@ -108,6 +139,10 @@ export default function NFTSelector({ onSelect }: NFTSelectorProps) {
     }
   }, [connected, publicKey, fetchNFTs, connection])
 
+  useEffect(() => {
+    setConnection(new Connection(endpoint));
+  }, [endpoint]);
+
   const loadMore = () => {
     setPage(prevPage => prevPage + 1)
     trackEvent('Load More NFTs', { page: page + 1 })
@@ -126,6 +161,7 @@ export default function NFTSelector({ onSelect }: NFTSelectorProps) {
         <div className="mb-4">
           <p>Connected: {publicKey.toBase58()}</p>
           <p>Network: {connection.rpcEndpoint}</p>
+          <p>Balance: {balance !== null ? `${balance.toFixed(4)} SOL` : 'Loading...'}</p>
           <Button onClick={disconnect} className="mr-2">Disconnect</Button>
           <WalletMultiButton>Change Wallet</WalletMultiButton>
         </div>
@@ -187,7 +223,12 @@ export default function NFTSelector({ onSelect }: NFTSelectorProps) {
       <div className="relative mb-4">
         <select
           value={network}
-          onChange={(e) => setNetwork(e.target.value as WalletAdapterNetwork)}
+          onChange={(e) => {
+            const newNetwork = e.target.value as WalletAdapterNetwork
+            setNetwork(newNetwork)
+            // Force reconnection when network changes
+            disconnect()
+          }}
           className="appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
         >
           <option value={WalletAdapterNetwork.Mainnet}>Mainnet</option>
