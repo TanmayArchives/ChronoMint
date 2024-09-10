@@ -1,11 +1,18 @@
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Loader2 } from "lucide-react"
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
-import { LAMPORTS_PER_SOL, Connection } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, Connection, clusterApiUrl } from '@solana/web3.js';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+
+import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
+import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
+import { percentAmount, generateSigner } from '@metaplex-foundation/umi';
+import { createBundlrUploader } from '@metaplex-foundation/umi-uploader-bundlr';
+import { createNft } from '@metaplex-foundation/mpl-token-metadata';
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 
 interface NFTMinterProps {
   onSuccess: (message: string) => void;
@@ -19,11 +26,36 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
   const [image, setImage] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
-  const connection = useMemo(() => new Connection("https://api.devnet.solana.com", "confirmed"), []);
+  const network = WalletAdapterNetwork.Devnet;
+
+  const endpoint = useMemo(() => {
+    if (network === WalletAdapterNetwork.Devnet) {
+      const quicknodeUrl = process.env.NEXT_PUBLIC_QUICKNODE_URL;
+      const quicknodeApiKey = process.env.NEXT_PUBLIC_QUICKNODE_API_KEY;
+
+      if (quicknodeUrl && quicknodeApiKey) {
+        return `${quicknodeUrl}/${quicknodeApiKey}`;
+      } else {
+        return clusterApiUrl(network);
+      }
+    }
+    return clusterApiUrl(network);
+  }, [network]);
+
+  const connection = useMemo(() => new Connection(endpoint), [endpoint]);
+  const umi = useMemo(() => {
+    const umi = createUmi(endpoint).use(mplTokenMetadata());
+
+    if (wallet.publicKey) {
+      umi.use(walletAdapterIdentity(wallet));
+    }
+
+    return umi;
+  }, [endpoint, wallet]);
 
   useEffect(() => {
-    console.log("Current endpoint:", connection.rpcEndpoint);
-  }, [connection]);
+    console.log("Current endpoint:", endpoint);
+  }, [endpoint]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setImage(acceptedFiles[0])
@@ -61,28 +93,26 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
       }
 
       const imageDataUrl = await toBase64(image);
-      const metaplex = Metaplex.make(connection)
-        .use(walletAdapterIdentity(wallet))
-
-      console.log("Uploading metadata...");
-      const { uri } = await metaplex.nfts().uploadMetadata({
+      
+      // Upload metadata
+      const bundlrUploader = createBundlrUploader(umi);
+      const uri = await bundlrUploader.uploadJson({
         name,
         description,
         image: imageDataUrl,
       });
-      console.log("Metadata uploaded. URI:", uri);
 
-      console.log("Creating NFT...");
-      const { nft } = await metaplex
-        .nfts()
-        .create({
-          uri,
-          name,
-          sellerFeeBasisPoints: 500, // 5%
-        });
-      console.log("NFT created. Address:", nft.address.toBase58());
+      // Create NFT
+      const mint = generateSigner(umi);
+      const { signature } = await createNft(umi, {
+        mint,
+        name,
+        uri,
+        sellerFeeBasisPoints: percentAmount(5), // 5%
+      }).sendAndConfirm(umi);
 
-      onSuccess(`NFT minted successfully! Mint address: ${nft.address.toBase58()}`);
+      console.log("NFT created. Signature:", signature);
+      onSuccess(`NFT minted successfully! Mint address: ${mint.publicKey}`);
     } catch (error) {
       console.error('Error minting NFT:', error);
       let errorMessage = 'Failed to mint NFT. ';
@@ -105,18 +135,21 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="bg-white shadow-md rounded-lg p-6 space-y-4">
+      <h2 className="text-xl font-semibold">Mint Your NFT</h2>
       <Input
         type="text"
         placeholder="NFT Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        className="border rounded-md p-2"
       />
       <Input
         type="text"
         placeholder="NFT Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
+        className="border rounded-md p-2"
       />
       <div 
         {...getRootProps()} 
@@ -126,13 +159,11 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
         <input {...getInputProps()} />
         {image ? (
           <p>Image selected: {image.name}</p>
-        ) : isDragActive ? (
-          <p>Drop the image here ...</p>
         ) : (
           <p>Drag &apos;n&apos; drop an image here, or click to select one</p>
         )}
       </div>
-      <p>Wallet Balance: {walletBalance !== null ? `${walletBalance.toFixed(4)} SOL` : ' click on Checking...'}</p>
+      <p>Wallet Balance: {walletBalance !== null ? `${walletBalance.toFixed(4)} SOL` : 'Click "Check Balance" to view'}</p>
       <Button 
         onClick={checkBalance} 
         className="w-full mb-2"
@@ -142,7 +173,7 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
       <Button 
         onClick={mintNFT} 
         disabled={!name || !description || !image || isLoading || !wallet.publicKey || walletBalance === null || walletBalance < 0.05}
-        className="w-full"
+        className="w-full bg-blue-500 text-white rounded-lg py-2 hover:bg-blue-600 transition"
       >
         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
         {isLoading ? 'Minting...' : 'Mint NFT'}

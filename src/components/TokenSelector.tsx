@@ -31,7 +31,7 @@ export default function TokenSelector({ onSelect }: TokenSelectorProps) {
       </CardHeader>
       <CardContent>
         <Select onValueChange={handleTokenChange} value={selectedToken}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a token" />
           </SelectTrigger>
           <SelectContent>

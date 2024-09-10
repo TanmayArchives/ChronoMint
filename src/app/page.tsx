@@ -15,6 +15,8 @@ interface NFT {
 }
 
 interface Notification {
+
+  
   message: string;
   type: 'success' | 'error';
 }
@@ -45,18 +47,46 @@ export default function Home() {
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-black text-white p-8 font-comic-sans"
+      className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-8 font-sans"
     >
-      <div className="container mx-auto max-w-4xl">
+      <div className="container mx-auto max-w-6xl">
         <motion.h1 
-          initial={{ y: -50, rotate: -5 }}
-          animate={{ y: 0, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 300 }}
-          className="text-6xl font-bold mb-12 text-center text-white stroke-black stroke-2"
-          style={{ textShadow: '3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000' }}
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
+          className="text-6xl font-bold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600"
         >
           NFT Liquidator
         </motion.h1>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-12 text-center text-xl text-gray-300"
+        >
+          Instantly swap your Solana NFTs for any SPL token at the best available price.
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="grid md:grid-cols-3 gap-8 mb-12"
+        >
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h3 className="text-xl font-semibold mb-4">Marketplace Aggregation</h3>
+            <p>We use Tensor to find the best prices for your NFTs in SOL.</p>
+          </div>
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h3 className="text-xl font-semibold mb-4">Token Swaps</h3>
+            <p>Jupiters swap aggregator ensures you get the best rates when converting to your desired token.</p>
+          </div>
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h3 className="text-xl font-semibold mb-4">User-Friendly</h3>
+            <p>Simple interface to connect, select, and swap with just a few clicks.</p>
+          </div>
+        </motion.div>
         
         <AnimatePresence>
           {notification && (
@@ -76,12 +106,12 @@ export default function Home() {
         </AnimatePresence>
         
         <Tab.Group>
-          <Tab.List className="flex p-1 space-x-1 bg-white/20 rounded-xl mb-8">
+          <Tab.List className="flex p-1 space-x-1 bg-gray-700 rounded-xl mb-8">
             <Tab
               className={({ selected }) =>
                 `w-full py-2.5 text-sm font-medium leading-5 text-white rounded-lg
                  focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60
-                 ${selected ? 'bg-white text-black shadow' : 'text-white hover:bg-white/[0.12] hover:text-white'}`
+                 ${selected ? 'bg-blue-600 shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'}`
               }
             >
               Swap NFT
@@ -90,7 +120,7 @@ export default function Home() {
               className={({ selected }) =>
                 `w-full py-2.5 text-sm font-medium leading-5 text-white rounded-lg
                  focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60
-                 ${selected ? 'bg-white text-black shadow' : 'text-white hover:bg-white/[0.12] hover:text-white'}`
+                 ${selected ? 'bg-blue-600 shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'}`
               }
             >
               Mint NFT
@@ -103,7 +133,7 @@ export default function Home() {
                   initial={{ x: -100, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="bg-white text-black p-6 rounded-lg shadow-lg transform rotate-2"
+                  className="bg-gray-800 p-6 rounded-lg shadow-lg"
                 >
                   <NFTSelector onSelect={handleNFTSelect} />
                 </motion.div>
@@ -112,7 +142,7 @@ export default function Home() {
                   initial={{ x: 100, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="bg-white text-black p-6 rounded-lg shadow-lg transform -rotate-2"
+                  className="bg-gray-800 p-6 rounded-lg shadow-lg"
                 >
                   <TokenSelector onSelect={setSelectedToken} />
                 </motion.div>
@@ -139,7 +169,7 @@ export default function Home() {
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white text-black p-6 rounded-lg shadow-lg"
+                className="bg-gray-800 p-6 rounded-lg shadow-lg"
               >
                 <NFTMinter 
                   onSuccess={(message) => showNotification(message, 'success')}

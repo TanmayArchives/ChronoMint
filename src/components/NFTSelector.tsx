@@ -1,16 +1,12 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useWallet, useConnection } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Metaplex } from "@metaplex-foundation/js"
 import { Loader2 } from "lucide-react"
-import { trackEvent } from '@/lib/analytics'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
-import { clusterApiUrl, Connection } from '@solana/web3.js'
-import { ChevronDown } from "lucide-react"
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 type NFT = {
   mint: string
@@ -24,221 +20,94 @@ interface NFTSelectorProps {
 
 export default function NFTSelector({ onSelect }: NFTSelectorProps) {
   const [nfts, setNfts] = useState<NFT[]>([])
-  const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-  const { publicKey, connected, disconnect } = useWallet()
-  const { connection: defaultConnection } = useConnection()
-  const [connection, setConnection] = useState(defaultConnection)
-  const [network, setNetwork] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('selectedNetwork') as WalletAdapterNetwork || WalletAdapterNetwork.Devnet
-    }
-    return WalletAdapterNetwork.Devnet
-  })
-  const [balance, setBalance] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('selectedNetwork', network)
-    }
-  }, [network])
-
-  const endpoint = useMemo(() => {
-    if (network === WalletAdapterNetwork.Mainnet) {
-      const quicknodeUrl = process.env.NEXT_PUBLIC_QUICKNODE_URL
-      const quicknodeApiKey = process.env.NEXT_PUBLIC_QUICKNODE_API_KEY
-      if (!quicknodeUrl || !quicknodeApiKey) {
-        console.error('QuickNode URL or API key is missing')
-        return clusterApiUrl(network) // Fallback to public RPC
-      }
-      return `${quicknodeUrl}/${quicknodeApiKey}`
-    }
-    return clusterApiUrl(network)
-  }, [network])
-
-  useEffect(() => {
-    console.log('Current network:', network)
-    console.log('Current endpoint:', endpoint)
-  }, [network, endpoint])
-
-  useEffect(() => {
-    console.log('Current network:', connection.rpcEndpoint)
-  }, [connection])
-
-  useEffect(() => {
-    async function checkConnection() {
-      try {
-        const version = await connection.getVersion()
-        console.log('Connection established. Version:', version)
-      } catch (err) {
-        console.error('Failed to establish connection:', err)
-        setError(`Failed to establish connection: ${err instanceof Error ? err.message : String(err)}`)
-      }
-    }
-    checkConnection()
-  }, [connection])
-
-  useEffect(() => {
-    async function fetchBalance() {
-      if (publicKey && connection) {
-        try {
-          const balance = await connection.getBalance(publicKey);
-          setBalance(balance / LAMPORTS_PER_SOL);
-        } catch (error) {
-          console.error('Error fetching balance:', error);
-          setBalance(null);
-        }
-      } else {
-        setBalance(null);
-      }
-    }
-
-    fetchBalance();
-  }, [publicKey, connection]);
+  const { publicKey, connected } = useWallet()
+  const { connection } = useConnection()
+  const [network, setNetwork] = useState<WalletAdapterNetwork>(WalletAdapterNetwork.Devnet)
 
   const fetchNFTs = useCallback(async () => {
     if (!publicKey) return
     setIsLoading(true)
     setError(null)
     try {
-      console.log('Fetching NFTs for wallet:', publicKey.toBase58())
-      console.log('Using endpoint:', connection.rpcEndpoint)
       const metaplex = new Metaplex(connection)
       const nfts = await metaplex.nfts().findAllByOwner({ owner: publicKey })
-      console.log('Fetched NFTs:', nfts)
-      console.log('NFTs count:', nfts.length)
-      
       const nftData = nfts.map(nft => ({
         mint: nft.address.toBase58(),
-        name: nft.name || 'Unnamed NFT',
+        name: nft.name,
         image: nft.json?.image || ''
       }))
-      
-      console.log('Processed NFT data:', nftData)
-      
       setNfts(nftData)
-      setHasMore(false)
     } catch (err) {
       console.error('Error fetching NFTs:', err)
-      setError('Failed to load NFTs: ' + (err instanceof Error ? err.message : 'Unknown error occurred'))
+      setError('Failed to load NFTs. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }, [publicKey, connection])
 
   useEffect(() => {
-    if (connected && publicKey && connection) {
-      console.log('Wallet connected, connection established. Fetching NFTs...')
+    if (connected && publicKey) {
       fetchNFTs()
     } else {
-      console.log('Wallet disconnected or no public key')
       setNfts([])
     }
-  }, [connected, publicKey, fetchNFTs, connection])
-
-  useEffect(() => {
-    setConnection(new Connection(endpoint));
-  }, [endpoint]);
-
-  const loadMore = () => {
-    setPage(prevPage => prevPage + 1)
-    trackEvent('Load More NFTs', { page: page + 1 })
-  }
-
-  const handleNFTSelect = (nft: NFT) => {
-    setSelectedNFT(nft)
-    onSelect(nft)
-    trackEvent('NFT Selected', { mint: nft.mint, name: nft.name })
-  }
+  }, [connected, publicKey, fetchNFTs])
 
   return (
-    <div>
-      <h1>NFT Liquidator</h1>
-      {publicKey ? (
-        <div className="mb-4">
-          <p>Connected: {publicKey.toBase58()}</p>
-          <p>Network: {connection.rpcEndpoint}</p>
-          <p>Balance: {balance !== null ? `${balance.toFixed(4)} SOL` : 'Loading...'}</p>
-          <Button onClick={disconnect} className="mr-2">Disconnect</Button>
-          <WalletMultiButton>Change Wallet</WalletMultiButton>
-        </div>
-      ) : (
-        <div className="mb-4">
-          <WalletMultiButton>Connect Wallet</WalletMultiButton>
-        </div>
-      )}
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>{connected ? "Select NFT" : "Connect Wallet to View NFTs"}</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>NFT Liquidator</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <WalletMultiButton className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded" />
+          
           {connected ? (
-            isLoading ? (
-              <div className="flex justify-center">
-                <Loader2 className="animate-spin" />
-              </div>
-            ) : nfts.length > 0 ? (
-              <>
-                <div className="grid grid-cols-3 gap-2">
-                  {nfts.map((nft) => (
-                    <Button
-                      key={nft.mint}
-                      onClick={() => handleNFTSelect(nft)}
-                      variant={selectedNFT?.mint === nft.mint ? "default" : "outline"}
-                      className="w-full"
-                    >
-                      {nft.name || 'Unnamed NFT'}
-                    </Button>
-                  ))}
+            <>
+              <p className="text-sm text-gray-600">Connect your wallet to view and select your NFTs.</p>
+              <Select onValueChange={(value) => setNetwork(value as WalletAdapterNetwork)} value={network}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select network" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={WalletAdapterNetwork.Mainnet}>Mainnet</SelectItem>
+                  <SelectItem value={WalletAdapterNetwork.Devnet}>Devnet</SelectItem>
+                  <SelectItem value={WalletAdapterNetwork.Testnet}>Testnet</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {isLoading ? (
+                <div className="flex justify-center">
+                  <Loader2 className="animate-spin" />
                 </div>
-                {hasMore && (
-                  <Button onClick={loadMore} disabled={isLoading} className="mt-4 w-full">
-                    {isLoading ? <Loader2 className="animate-spin mr-2" /> : null}
-                    {isLoading ? 'Loading...' : 'Load More'}
-                  </Button>
-                )}
-              </>
-            ) : (
-              <div>
-                <p>No NFTs found. Make sure you have NFTs in your wallet.</p>
-                <p>Wallet address: {publicKey?.toBase58()}</p>
-                <p>Network: {connection.rpcEndpoint}</p>
-                <Button onClick={fetchNFTs} className="mt-2">Retry Fetch</Button>
-              </div>
-            )
+              ) : error ? (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              ) : nfts.length > 0 ? (
+                <Select onValueChange={(value) => onSelect(JSON.parse(value))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an NFT" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {nfts.map((nft) => (
+                      <SelectItem key={nft.mint} value={JSON.stringify(nft)}>
+                        {nft.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p>No NFTs found in your wallet.</p>
+              )}
+            </>
           ) : (
-            <p>Connect your wallet to view and select your NFTs.</p>
+            <p className="text-sm text-gray-600">Connect your wallet to view and select your NFTs.</p>
           )}
-          {error && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
-      <div className="relative mb-4">
-        <select
-          value={network}
-          onChange={(e) => {
-            const newNetwork = e.target.value as WalletAdapterNetwork
-            setNetwork(newNetwork)
-            // Force reconnection when network changes
-            disconnect()
-          }}
-          className="appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-        >
-          <option value={WalletAdapterNetwork.Mainnet}>Mainnet</option>
-          <option value={WalletAdapterNetwork.Devnet}>Devnet</option>
-          <option value={WalletAdapterNetwork.Testnet}>Testnet</option>
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-          <ChevronDown className="h-4 w-4" />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
