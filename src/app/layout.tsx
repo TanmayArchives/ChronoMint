@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Bricolage_Grotesque, Lexend_Deca } from 'next/font/google';
 import "./globals.css";
 import WalletContextProvider from "@/components/WalletContextProvider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -13,6 +15,20 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
+
+const mainFont = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["200", "300", "500", "600", "700", "800"],
+  variable: '--font-main'
+});
+
+const secondaryFont = Lexend_Deca({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "500", "600", "700", "800"],
+  variable: '--font-secondary'
+});
+
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,11 +43,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${mainFont.variable} ${secondaryFont.variable} font-mainFont antialiased`}
       >
-           <WalletContextProvider>
-          {children}
-        </WalletContextProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <WalletContextProvider>
+            {children}
+          </WalletContextProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
