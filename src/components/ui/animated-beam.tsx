@@ -1,11 +1,11 @@
 "use client";
 
-import React, { forwardRef, useRef } from "react";
+import React, { useRef } from "react";
 import sol from "../../../public/sol.svg";
 import usdc from "../../../public/usdc.svg";
 import usdt from "../../../public/usdt.svg";
 
-import { cn } from "@/lib/utils";
+
 import { AnimatedBeam } from "@/components/magicui/animated-beam";
 import Image from "next/image";
 
