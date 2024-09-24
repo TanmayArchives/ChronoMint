@@ -84,13 +84,11 @@ export default function SwapButton({ selectedNFT, selectedToken, onSuccess, onEr
 
   return (
     <motion.div
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg shadow-lg p-4"
+      className=" flex items-start justify-start rounded-lg my-6"
     >
       <Button 
         onClick={handleSwap} 
-        className="w-full text-white font-bold py-3 rounded-lg transition duration-300 ease-in-out transform hover:bg-blue-600"
+        className="font-bold py-4 px-6   rounded-lg transition duration-300 ease-in-out transform "
         disabled={!publicKey || !selectedNFT || !selectedToken || isLoading}
       >
         {isLoading ? 'Processing...' : 'Swap NFT'}

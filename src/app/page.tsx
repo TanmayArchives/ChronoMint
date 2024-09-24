@@ -32,15 +32,13 @@ interface Notification {
 }
 
 export default function Home() {
-  const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null)
-  const [selectedToken, setSelectedToken] = useState('')
-  const [notification, setNotification] = useState<Notification | null>(null)
+
+  const [notification, setNotification] = useState<Notification | null>(null);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     setNotification({ message, type })
   }
 
-  const handleNFTSelect = (nft: NFT) => setSelectedNFT(nft);
 
   useEffect(() => {
     if (notification) {
@@ -55,10 +53,6 @@ export default function Home() {
   return (
     <div className='mx-auto px-4 max-w-7xl h-screen max-h-fit'>
       <section className='h-full my-4'>
-        <header className=''>
-          <Navbar />
-        </header>
-
         <main className='flex relative flex-col items-center justify-start mt-12 border-red-500 h-[88vh] max-h-fit'>
           <p className='border-2 px-4 py-1 text-xs rounded-full font-semibold'>Star us on Github</p>
           <div className='flex flex-col my-4 gap-4 px-2 text-center  items-center justify-center'>
@@ -79,7 +73,7 @@ export default function Home() {
           <UsersAvatar />
 
           <div className='flex items-center gap-2 my-6'>
-            <Button className='font-bold'>Try for free</Button>
+            <Button onClick={()=>window.open('/swap')} className='font-bold'>Try for free</Button>
             <Button variant={'ghost'}>Explore more</Button>
           </div>
           {/* <AnimatedBeamDemo /> */}

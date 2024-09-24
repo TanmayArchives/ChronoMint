@@ -4,6 +4,8 @@ import { Bricolage_Grotesque, Lexend_Deca } from 'next/font/google';
 import "./globals.css";
 import WalletContextProvider from "@/components/WalletContextProvider";
 import { ThemeProvider } from "@/components/theme-provider";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -51,8 +53,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <header className='px-4'>
+            <Navbar />
+          </header>
           <WalletContextProvider>
-            {children}
+            <div className="px-4">
+              {children}
+            </div>
           </WalletContextProvider>
         </ThemeProvider>
       </body>
