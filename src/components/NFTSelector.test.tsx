@@ -16,12 +16,12 @@ jest.mock('@solana/wallet-adapter-react', () => ({
 
 describe('NFTSelector', () => {
   it('renders without crashing', () => {
-    render(<NFTSelector onSelect={() => {}} />)
+    render(<NFTSelector onSelect={() => { } } selectedNFT={null} />)
     expect(screen.getByText('Select NFT')).toBeInTheDocument()
   })
 
   it('displays loading state when fetching NFTs', () => {
-    render(<NFTSelector onSelect={() => {}} />)
+    render(<NFTSelector onSelect={() => { } } selectedNFT={null} />)
     expect(screen.getByRole('status')).toBeInTheDocument()
   })
 
