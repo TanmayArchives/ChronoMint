@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2 } from "lucide-react"
+import { Loader2, Upload, Wallet } from "lucide-react"
 import { useWallet } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL, Connection, clusterApiUrl } from '@solana/web3.js';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
@@ -13,6 +13,7 @@ import { percentAmount, generateSigner } from '@metaplex-foundation/umi';
 import { createBundlrUploader } from '@metaplex-foundation/umi-uploader-bundlr';
 import { createNft } from '@metaplex-foundation/mpl-token-metadata';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { Textarea } from './ui/textarea'
 
 interface NFTMinterProps {
   onSuccess: (message: string) => void;
@@ -61,9 +62,9 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
     setImage(acceptedFiles[0])
   }, [])
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {'image/*': []}
+    accept: { 'image/*': [] }
   })
 
   const checkBalance = async () => {
@@ -87,13 +88,13 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
 
     try {
       await checkBalance();
-      
+
       if (walletBalance === null || walletBalance < 0.05) {
         throw new Error(`Insufficient balance: ${walletBalance} SOL. Minimum 0.05 SOL required.`);
       }
 
       const imageDataUrl = await toBase64(image);
-      
+
       // Upload metadata
       const bundlrUploader = createBundlrUploader(umi);
       const uri = await bundlrUploader.uploadJson({
@@ -135,49 +136,71 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
   }
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 space-y-4">
-      <h2 className="text-xl font-semibold">Mint Your NFT</h2>
-      <Input
-        type="text"
-        placeholder="NFT Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="border rounded-md p-2"
-      />
-      <Input
-        type="text"
-        placeholder="NFT Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="border rounded-md p-2"
-      />
-      <div 
-        {...getRootProps()} 
-        className={`p-4 border-2 border-dashed rounded-md text-center cursor-pointer
-                    ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
-      >
-        <input {...getInputProps()} />
-        {image ? (
-          <p>Image selected: {image.name}</p>
-        ) : (
-          <p>Drag &apos;n&apos; drop an image here, or click to select one</p>
-        )}
+    <div className="grid grid-cols-1 my-6 md:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="nft-name" className="text-sm font-medium">NFT Name</label>
+          <Input
+            id="nft-name"
+            type="text"
+            placeholder="Enter NFT name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="nft-description" className="text-sm font-medium">NFT Description</label>
+          <Textarea
+            id="nft-description"
+            placeholder="Enter NFT description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+          />
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium">Wallet Balance</span>
+            <Button variant="outline" size="sm" onClick={checkBalance}>
+              <Wallet className="mr-2 h-4 w-4" />
+              Check Balance
+            </Button>
+          </div>
+          <p className="text-sm font-medium">
+            {walletBalance !== null ? `${walletBalance.toFixed(4)} SOL` : 'Click "Check Balance" to view'}
+          </p>
+        </div>
       </div>
-      <p>Wallet Balance: {walletBalance !== null ? `${walletBalance.toFixed(4)} SOL` : 'Click "Check Balance" to view'}</p>
-      <Button 
-        onClick={checkBalance} 
-        className="w-full mb-2"
-      >
-        Check Balance
-      </Button>
-      <Button 
-        onClick={mintNFT} 
-        disabled={!name || !description || !image || isLoading || !wallet.publicKey || walletBalance === null || walletBalance < 0.05}
-        className="w-full bg-blue-500 text-white rounded-lg py-2 hover:bg-blue-600 transition"
-      >
-        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-        {isLoading ? 'Minting...' : 'Mint NFT'}
-      </Button>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">NFT Image</label>
+          <div
+            {...getRootProps()}
+            className={`p-4 border-2 border-dashed rounded-md text-center cursor-pointer transition-colors h-40
+                            ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-primary'}`}
+          >
+            <input {...getInputProps()} />
+            {image ? (
+              <div className="h-full flex items-center justify-center">
+                <p className="text-sm">{image.name}</p>
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center space-y-2">
+                <Upload className="h-8 w-8 text-gray-400" />
+                <p className="text-sm">Drag & drop an image here, or click to select</p>
+              </div>
+            )}
+          </div>
+        </div>
+        <Button
+          onClick={mintNFT}
+          disabled={!name || !description || !image || isLoading || !wallet.publicKey || walletBalance === null || walletBalance < 0.05}
+          className="w-full"
+        >
+          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {isLoading ? 'Minting...' : 'Mint NFT'}
+        </Button>
+      </div>
     </div>
   )
 }
