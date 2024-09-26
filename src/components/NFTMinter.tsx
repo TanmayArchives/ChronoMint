@@ -1,26 +1,21 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react'
-import { useDropzone } from 'react-dropzone'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Loader2, Upload, Wallet } from "lucide-react"
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader2, Upload, Wallet } from "lucide-react";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL, Connection, clusterApiUrl } from '@solana/web3.js';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-
 import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
 import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
 import { percentAmount, generateSigner } from '@metaplex-foundation/umi';
 import { createBundlrUploader } from '@metaplex-foundation/umi-uploader-bundlr';
 import { createNft } from '@metaplex-foundation/mpl-token-metadata';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
-import { Textarea } from './ui/textarea'
+import { Textarea } from './ui/textarea';
+import { toast } from 'sonner';
 
-interface NFTMinterProps {
-  onSuccess: (message: string) => void;
-  onError: (message: string) => void;
-}
-
-export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
+export default function NFTMinter() {
   const wallet = useWallet();
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -69,7 +64,7 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
 
   const checkBalance = async () => {
     if (!wallet.publicKey) {
-      onError('Wallet not connected');
+      toast.error('Wallet not connected');
       return;
     }
     try {
@@ -78,7 +73,7 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
       console.log(`Wallet balance: ${balance / LAMPORTS_PER_SOL} SOL`);
     } catch (error) {
       console.error('Error checking balance:', error);
-      onError('Failed to check wallet balance.');
+      toast.error('Failed to check wallet balance.');
     }
   };
 
@@ -113,14 +108,14 @@ export default function NFTMinter({ onSuccess, onError }: NFTMinterProps) {
       }).sendAndConfirm(umi);
 
       console.log("NFT created. Signature:", signature);
-      onSuccess(`NFT minted successfully! Mint address: ${mint.publicKey}`);
+      toast.success(`NFT minted successfully! Mint address: ${mint.publicKey}`);
     } catch (error) {
       console.error('Error minting NFT:', error);
       let errorMessage = 'Failed to mint NFT. ';
       if (error instanceof Error) {
         errorMessage += error.message;
       }
-      onError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

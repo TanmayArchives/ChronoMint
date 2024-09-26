@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NFTSelector from '@/components/NFTSelector';
 import TokenSelector from '@/components/TokenSelector';
@@ -14,31 +14,9 @@ interface NFT {
   image: string;
 }
 
-interface Notification {
-  message: string;
-  type: 'success' | 'error';
-}
-
 export default function Swap() {
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
   const [selectedToken, setSelectedToken] = useState('');
-  const [notification, setNotification] = useState<Notification | null>(null);
-
-  const showNotification = (message: string, type: 'success' | 'error') => {
-    setNotification({ message, type })
-  }
-
-
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => {
-        setNotification(null)
-      }, 5000)
-
-      return () => clearTimeout(timer)
-    }
-  }, [notification])
-
 
   const handleNFTSelect = (nft: NFT) => setSelectedNFT(nft);
   return (
@@ -71,18 +49,13 @@ export default function Swap() {
               <SwapButton
                 selectedNFT={selectedNFT}
                 selectedToken={selectedToken}
-                onSuccess={(message) => showNotification(message, 'success')}
-                onError={(message) => showNotification(message, 'error')}
               />
             )}
           </div>
         </TabsContent>
         <TabsContent value="password">
           <div className='flex flex-col'>
-            <NFTMinter
-              onSuccess={(message) => showNotification(message, 'success')}
-              onError={(message) => showNotification(message, 'error')}
-            />
+            <NFTMinter />
           </div>
         </TabsContent>
       </Tabs>

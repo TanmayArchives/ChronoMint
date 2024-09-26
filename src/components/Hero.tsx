@@ -5,7 +5,6 @@ import usdc from "../../public/usdc.svg";
 import circle from "../../public/circle-scribble.svg";
 import usdt from "../../public/usdt.svg";
 import Image from 'next/image'
-// import { AnimatedBeamDemo } from '@/components/ui/animated-beam'
 import { Button } from '@/components/ui/button'
 import { UsersAvatar } from '@/components/users-avatar'
 import { useRouter } from 'next/navigation';
@@ -169,7 +168,6 @@ export default function Hero() {
                         <ExploreButton />
                         <Button className='text-base h-full' variant={'ghost'}>Explore more</Button>
                     </div>
-                    {/* <AnimatedBeamDemo /> */}
                     <motion.div
                         className='w-[7rem] h-[7rem] lg:w-[10rem] lg:h-[10rem] p-6 lg:p-6 bg-background/1 backdrop-blur-xl shadow-xl drop-shadow-[10px_16px_50px_#2874ca] rounded-full absolute top-[400px] lg:top-52 left-8 lg:left-52'
                         variants={floatVariants}
