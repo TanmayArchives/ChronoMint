@@ -7,32 +7,30 @@ import { Transaction } from '@solana/web3.js'
 import axios from 'axios'
 import { trackEvent, trackException } from '@/lib/analytics'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 
 interface NFT {
   mint: string;
-
 }
 
 interface SwapButtonProps {
   selectedNFT: NFT;
   selectedToken: string;
-  onSuccess: (message: string) => void;
-  onError: (message: string) => void;
 }
 
-export default function SwapButton({ selectedNFT, selectedToken, onSuccess, onError }: SwapButtonProps) {
+export default function SwapButton({ selectedNFT, selectedToken }: SwapButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
   const { publicKey, signTransaction } = useWallet()
   const { connection } = useConnection()
 
   const handleSwap = async () => {
     if (!publicKey || !signTransaction) {
-      onError('Wallet not connected')
+      toast.error('Wallet not connected')
       trackEvent('Swap Attempt', { error: 'Wallet not connected' })
       return
     }
     if (!selectedNFT || !selectedToken) {
-      onError('Please select an NFT and a token')
+      toast.error('Please select an NFT and a token')
       trackEvent('Swap Attempt', { error: 'NFT or token not selected' })
       return
     }
@@ -70,11 +68,11 @@ export default function SwapButton({ selectedNFT, selectedToken, onSuccess, onEr
         toToken: selectedToken,
         amount: nftPrice
       })
-      onSuccess(`Swap completed successfully. Transaction ID: ${txid}`)
+      toast.success(`Swap completed successfully. Transaction ID: ${txid}`)
     } catch (error) {
       console.error('Swap failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Swap failed due to an unknown error'
-      onError(errorMessage)
+      toast.error(errorMessage)
       trackException(errorMessage, false)
       trackEvent('Swap Failed', { error: errorMessage })
     } finally {
@@ -86,8 +84,8 @@ export default function SwapButton({ selectedNFT, selectedToken, onSuccess, onEr
     <motion.div
       className=" flex items-start justify-start rounded-lg my-6"
     >
-      <Button 
-        onClick={handleSwap} 
+      <Button
+        onClick={handleSwap}
         className="font-bold py-4 px-6   rounded-lg transition duration-300 ease-in-out transform "
         disabled={!publicKey || !selectedNFT || !selectedToken || isLoading}
       >
