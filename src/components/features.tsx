@@ -1,3 +1,4 @@
+"use client";
 import { BlendIcon, Crown, Handshake, Store } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';

@@ -19,11 +19,20 @@ const secondaryFont = Lexend_Deca({
   variable: '--font-secondary'
 });
 
-
-
 export const metadata: Metadata = {
   title: "ChronoMint",
   description: "Instant NFT Liquidation",
+  openGraph: {
+    type: 'website',
+    title: "ChronoMint",
+    description: "Instant NFT Liquidation",
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_URL}/api/root-og-image`,
+        alt: 'og-image-for-home-page'
+      }
+    ]
+  }
 };
 
 export default function RootLayout({
@@ -49,7 +58,7 @@ export default function RootLayout({
             <main className=" max-w-7xl mx-auto px-4 min-h-[calc(100vh-21.8rem)]">
               {children}
             </main>
-            <Toaster position="bottom-right" richColors/>
+            <Toaster position="bottom-right" richColors />
           </WalletContextProvider>
           <Footer />
         </ThemeProvider>
