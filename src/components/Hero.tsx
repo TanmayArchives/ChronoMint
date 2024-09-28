@@ -86,7 +86,7 @@ const ExploreButton = () => {
 export default function Hero() {
     return (
         <motion.main
-            className='relative mb-[18rem] h-fit'
+            className='relative mb-[23rem] md:mb-[18rem] h-fit'
             initial="hidden"
             animate="visible"
             variants={containerVariants}

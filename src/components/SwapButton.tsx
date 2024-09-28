@@ -8,6 +8,7 @@ import axios from 'axios'
 import { trackEvent, trackException } from '@/lib/analytics'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 
 interface NFT {
   mint: string;
@@ -86,10 +87,15 @@ export default function SwapButton({ selectedNFT, selectedToken }: SwapButtonPro
     >
       <Button
         onClick={handleSwap}
-        className="font-bold py-4 px-6   rounded-lg transition duration-300 ease-in-out transform "
+        className="font-bold py-6 px-6 rounded-lg transition duration-300 ease-in-out transform "
         disabled={!publicKey || !selectedNFT || !selectedToken || isLoading}
       >
-        {isLoading ? 'Processing...' : 'Swap NFT'}
+        {isLoading ? (
+          <>
+            <Loader2 className='animate-spin mr-2'/>
+            Swapping NFT ...
+          </>
+        ) : 'Swap NFT'}
       </Button>
     </motion.div>
   )

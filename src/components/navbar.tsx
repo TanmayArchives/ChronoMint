@@ -13,10 +13,10 @@ export default function Navbar() {
               onClick={() => router.push('/')} 
               style={{ 
                 cursor: 'pointer',
-                color: '#fff', 
                 textShadow: '0 0 10px #8a2be2, 0 0 20px #8a2be2, 0 0 30px #8a2be2, 0 0 40px #8a2be2', // Purple glow
                 transition: 'text-shadow 0.3s ease'
               }}
+              className='text-purple-950 text-md dark:text-white'
               onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 15px #b19cd9, 0 0 25px #b19cd9, 0 0 35px #b19cd9, 0 0 45px #b19cd9, 0 0 55px #b19cd9'}
               onMouseLeave={(e) => e.currentTarget.style.textShadow = '0 0 10px #8a2be2, 0 0 20px #8a2be2, 0 0 30px #8a2be2, 0 0 40px #8a2be2'}
             >

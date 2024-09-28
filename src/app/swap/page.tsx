@@ -20,7 +20,7 @@ export default function Swap() {
 
   const handleNFTSelect = (nft: NFT) => setSelectedNFT(nft);
   return (
-    <div className='max-w-7xl my-16 mx-auto'>
+    <div className='max-w-7xl my-8 md:my-12 mx-auto'>
       <div className='flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-10'>
         <div className='flex flex-col gap-2'>
           <h1 className='text-2xl md:text-3xl'>Swap or Mint NFTs instantly</h1>
@@ -33,13 +33,13 @@ export default function Swap() {
       <Tabs defaultValue="account" className="w-full">
         <TabsList>
           <TabsTrigger className='text-md' value="account">Swap NFTs</TabsTrigger>
-          <TabsTrigger className='text-md' value="password">Mint Token</TabsTrigger>
+          <TabsTrigger className='text-md' value="password">Mint NFTs</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
           <div className='flex flex-col mt-8 '>
             <div className='flex flex-col md:flex-row items-center gap-6 relative'>
               <NFTSelector selectedNFT={selectedNFT} onSelect={handleNFTSelect} />
-              <div className='absolute hidden md:flex shadow-xl  items-center bg-background rounded-full justify-center top-[50%] border-2 border-accent w-[4rem] h-[4rem] left-[50%] translate-x-[-50%] translate-y-[-50%]'>
+              <div className='md:absolute flex shadow-xl rotate-90 md:rotate-0 items-center bg-background rounded-full justify-center md:top-[50%] border-2 border-accent w-[4rem] h-[4rem] md:left-[50%] md:translate-x-[-50%] md:translate-y-[-50%]'>
                 <ArrowRightLeft />
               </div>
               <TokenSelector onSelect={setSelectedToken} />
