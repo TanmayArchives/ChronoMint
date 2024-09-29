@@ -1,7 +1,10 @@
+"use client";
 import { BlendIcon, Crown, Handshake, Store } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 import tensor from "../../public/tensor.png"
+import og from "../../public/root-og-image.png";
+import jupiter from "../../public/jupiter.png";
 import { motion } from 'framer-motion';
 
 export default function Features() {
@@ -69,43 +72,49 @@ export default function Features() {
                 viewport={{ once: true, amount: 0.3 }}
             >
                 <motion.div
-                    className="border-2 bg-background group transition-all duration-110 ease-linear overflow-hidden relative col-span-1 p-6 md:p-10 h-[23rem] md:h-[25rem] rounded-lg"
+                    className="border-[3px] hover:border-purple-500 group bg-background transition-colors duration-150 ease-linear overflow-hidden relative col-span-1 p-6 md:p-10 h-[23rem] md:h-[25rem] rounded-lg"
                     variants={itemVariants}
                     initial="hidden"
                     whileInView="visible"
                     custom={1}
                     viewport={{ once: true, amount: 0.3 }}
                 >
-                    <Store className='mb-6 opacity-80' size={35} />
+                    <Store className='mb-6 opacity-80 duration-200 group-hover:text-purple-500 group-hover:w-10 group-hover:h-10' size={35} />
                     <h3 className="text-xl md:text-3xl font-semibold mb-2">Marketplace Aggregation</h3>
                     <p className='text-sm text-gray-400 font-[300]'>We use Tensor to find the best prices for your NFTs in SOL.</p>
                     <Image className='absolute md:left-[50%] md:translate-x-[-50%] transition-all duration-300 opacity-50 ease-linear bottom-[-150px] group-hover:opacity-100 group-hover:bottom-[-70px] md:group-hover:bottom-[-110px] border-2 p-2 rounded-md' src={tensor} width={500} height={500} alt='image-1' />
+                    <div className='absolute transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100 left-[50%] translate-x-[-50%] -bottom-[0rem] -z-[20] size-[3rem] md:size-[12rem] overflow-hidden rounded-full bg-gradient-to-t from-purple-400 to-purple-700 blur-[8em]'>
+                    </div>
                 </motion.div>
                 <motion.div
-                    className="border-2 bg-background group transition-all duration-110 ease-linear overflow-hidden relative col-span-1  p-6 md:p-10 h-[23rem] md:h-[25rem] rounded-lg"
+                    className="border-[3px] hover:border-purple-500 group bg-background transition-colors duration-150 ease-linear overflow-hidden relative col-span-1 p-6 md:p-10 h-[23rem] md:h-[25rem] rounded-lg"
                     variants={itemVariants}
                     initial="hidden"
                     whileInView="visible"
                     custom={2}
                     viewport={{ once: true, amount: 0.3 }}
                 >
-                    <Handshake className='mb-6 opacity-80' size={35} />
+                    <Handshake className='mb-6 opacity-80 duration-200 group-hover:text-purple-500 group-hover:w-10 group-hover:h-10' size={35} />
                     <h3 className="text-xl md:text-3xl font-semibold mb-2">User-Friendly</h3>
                     <p className='text-sm text-gray-400 font-[300]'>Simple interface to connect, select, and swap with just a few clicks.</p>
-                    <Image className='absolute md:left-[50%] md:translate-x-[-50%] transition-all duration-300 opacity-50 ease-linear bottom-[-150px] group-hover:opacity-100 group-hover:bottom-[-70px] md:group-hover:bottom-[-110px] border-2 p-2 rounded-md' src={tensor} width={500} height={500} alt='image-1' />
+                    <Image className='absolute md:left-[50%] md:translate-x-[-50%] transition-all duration-300 opacity-50 ease-linear bottom-[-130px] group-hover:opacity-100 group-hover:bottom-[-70px] md:group-hover:bottom-[-80px] border-2 p-2 rounded-md' src={og} width={500} height={500} alt='image-1' />
+                    <div className='absolute transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100 left-[50%] translate-x-[-50%] -bottom-[0rem] -z-[20] size-[3rem] md:size-[12rem] overflow-hidden rounded-full bg-gradient-to-t from-purple-400 to-purple-700 blur-[8em]'>
+                    </div>
                 </motion.div>
                 <motion.div
-                    className="border-2 bg-background group transition-all duration-110 ease-linear overflow-hidden relative col-span-1 md:col-span-2  p-6 md:p-10 h-[23rem] md:h-[25rem] rounded-lg"
+                    className="border-[3px] hover:border-purple-500 group bg-background transition-colors duration-150 ease-linear overflow-hidden relative col-span-1 md:col-span-2 p-6 md:p-10 h-[23rem] md:h-[25rem] rounded-lg"
                     variants={itemVariants}
                     initial="hidden"
                     whileInView="visible"
                     custom={3}
                     viewport={{ once: true, amount: 0.3 }}
                 >
-                    <BlendIcon className='mb-6 opacity-80' size={35} />
+                    <BlendIcon className='mb-6 opacity-80 duration-200 group-hover:text-purple-500 group-hover:w-10 group-hover:h-10' size={35} />
                     <h3 className="text-xl md:text-3xl font-semibold mb-2">Token Swaps</h3>
-                    <p className='text-sm text-gray-400 font-[300]'>Jupiters swap aggregator ensures you get the best rates when converting to your desired token</p>
-                    <Image className='absolute right-[-10%] transition-all duration-300 opacity-50 ease-linear bottom-[-150px] group-hover:opacity-100 group-hover:bottom-[-70px] md:group-hover:bottom-[-110px] border-2 p-2 rounded-md' src={tensor} width={500} height={500} alt='image-1' />
+                    <p className='text-sm text-gray-400 font-[300]'>Jupiters swap aggregator ensures you get the best rates when converting to your desired token . <span className='hidden md:block'>This means you can execute trades quickly and efficiently, minimizing slippage and maximizing your returns.</span></p>
+                    <Image className='absolute right-[-10%] transition-all duration-300 opacity-50 ease-linear bottom-[-150px] group-hover:opacity-100 group-hover:bottom-[-70px] md:group-hover:bottom-[-110px] border-2 p-2 rounded-md' src={jupiter} width={500} height={500} alt='image-1' />
+                    <div className='absolute transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100 left-[50%] translate-x-[-50%] -bottom-[0rem] -z-[20] size-[3rem] md:size-[12rem] overflow-hidden rounded-full bg-gradient-to-t from-purple-400 to-purple-700 blur-[8em]'>
+                    </div>
                 </motion.div>
             </motion.div>
         </motion.main>

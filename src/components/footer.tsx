@@ -19,6 +19,7 @@ export default function Footer() {
                         return (
                             <span
                                 onClick={() => router.push('/')}
+                                key={`item-${index}`}
                                 className={`text-6xl font-bold ${index + 1 <= arr.length / 2 ? 'hover:-rotate-12' : 'hover:rotate-12'}  cursor-pointer transition-all duration-200 ease-out hover:bg-purple-500 hover:scale-110 bg-gradient-to-b from-black/20 dark:from-white/20 bg-clip-text text-transparent`}
                             // style={{
                             //     cursor: 'pointer',

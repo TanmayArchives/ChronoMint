@@ -72,10 +72,10 @@ export default function NFTSelector({ selectedNFT, onSelect }: NFTSelectorProps)
       <CardHeader>
         <CardTitle className='text-xl'>Choose your NFT</CardTitle>
       </CardHeader>
-      <CardContent className='min-h-[calc(20rem-4.8rem)] max-h-fit'>
-        <div className="h-full flex flex-col ">
+      <CardContent className='min-h-[calc(20rem-4.8rem)] flex flex-col max-h-fit'>
+        <div className="h-full flex-1 flex flex-col">
           {connected ? (
-            <div className='flex flex-col gap-4 h-full'>
+            <div className='flex flex-col gap-4 h-full flex-1'>
               <p className='text-xs dark:text-gray-300 '>1. Select the network</p>
               <div className='block md:hidden'>
                 <Select onValueChange={(value) => setNetwork(value as WalletAdapterNetwork)} value={network}>
@@ -117,10 +117,10 @@ export default function NFTSelector({ selectedNFT, onSelect }: NFTSelectorProps)
                   {nfts.length} NFTs
                 </aside>
               </div>
-              <div className='rounded-md'>
+              <div className='rounded-md border-2 flex flex-col flex-1 h-full'>
 
                 {isLoading ? (
-                  <div className="flex flex-1 h-full rounded-lg items-center justify-center">
+                  <div className="flex flex-1 border-2 h-full rounded-lg items-center justify-center">
                     <Loader2 className="animate-spin" />
                   </div>
                 ) : error ? (
@@ -177,13 +177,13 @@ export default function NFTSelector({ selectedNFT, onSelect }: NFTSelectorProps)
                     </Select> */}
                   </div>
                 ) : (
-                  <p className='text-sm'>No NFTs found in your wallet.</p>
+                  <p className='text-sm flex items-center justify-center flex-1 text-gray-400'>No NFTs found in your wallet.</p>
                 )}
               </div>
 
             </div>
           ) : (
-            <div className="text-sm gap-4 text-center flex items-center flex-col justify-center h-full text-gray-400">
+            <div className="text-sm gap-4 text-center flex min-h-[calc(20rem-4.8rem)] items-center flex-col justify-center text-gray-400">
               <Wallet size={40} />
               <p className='w-full md:w-[50%]'>Connect your wallet to view and select your NFTs.</p>
             </div>
